@@ -1,10 +1,11 @@
 class body:
 
-    def __init__(self, name, mas, pos, vel):
+    def __init__(self, name, mas, pos, vel, color):
         self.name = name
         self.mas = mas
         self.pos = pos
         self.vel = vel
+        self.color = color
 
     def name(self):
         return self.name
@@ -17,5 +18,8 @@ class body:
 
     def vel(self):
         return self.vel
+    
+    def color(self):
+        return self.color
     
 

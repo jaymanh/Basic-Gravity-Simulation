@@ -125,36 +125,61 @@ def calculate_direction(body1: Bodies.body, body2: Bodies.body) -> list[float]:
         NormalizedDirection.append(direction[i] / calculate_distance(body1.pos, body2.pos)) #Calculate the direction of a change in velocity
     return NormalizedDirection #Return the direction of a change in velocity
 
-def draw_body(screen, body, color):
+#Draw a body
+def draw_body(screen, body):
     # Scale the 3D coordinates for rendering
-    scaled_x = int((body.pos[0] / 400000) + 960)
-    scaled_y = int((body.pos[1] / 400000) + 540)
-    scaled_z = int((body.pos[2] / 400000) + 960)
+    scaled_x = int((body.pos[0] / 400000) + WIDTH / 2)
+    scaled_y = int((body.pos[1] / 400000) + HEIGHT / 2)
+    scaled_z = int((body.pos[2] / 400000) + WIDTH / 2)
 
     # Calculate the size of the circle based on the z-axis
     circle_radius = int(scaled_z / 30)  # Adjust the divisor to get the desired effect
 
     # Draw a sphere with the calculated radius
-    pygame.draw.circle(screen, color, (scaled_x, scaled_y), circle_radius)
+    pygame.draw.circle(screen, body.color, (scaled_x, scaled_y), circle_radius)
     pygame.draw.circle(screen, (0, 0, 0), (scaled_x, scaled_y), circle_radius, 1)  # Outline
 
 
-os.environ["SDL_VIDEO_WINDOW_POS"] = "1921,0" #Make the window open in the top left corner of the screen
+def draw_input_box():
+    global active
+    global text
+    txt_surface = font.render(text, True, WHITE)
+    width = max(200, txt_surface.get_width()+10)
+    input_box.w = width
+    screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+    pygame.draw.rect(screen, color, input_box, 2)
+
+os.environ["SDL_VIDEO_WINDOW_POS"] = "1921,0" #Make the window open where needed
 pygame.init()
+pygame.font.init()
 
 WIDTH, HEIGHT = 1920, 1080
 BODY_RADIUS = 20
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+# Input box
+input_box = pygame.Rect(100, 100, 140, 32)
+color_inactive = pygame.Color('lightskyblue3')
+color_active = pygame.Color('dodgerblue2')
+color = color_inactive
+active = False
+text = ''
+font = pygame.font.Font(None, 32)
+
 
 def main():
 
-    
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    global active
+    global text
 
-    body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4]) 
-    body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000]) 
+    body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], BLUE) 
+    body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000], RED) 
+
+    bodys = [body1, body2]
     
     print(body1.name + " Mas = " + str(body1.mas) + " Pos = " + str(body1.pos) + " Vel = " + str(body1.vel)) 
     print(body2.name + " Mas = " + str(body2.mas) + " Pos = " + str(body2.pos) + " Vel = " + str(body2.vel))
@@ -167,20 +192,42 @@ def main():
         screen.fill((0, 0, 0))
 
         # Draw the bodies
-        draw_body(screen, body1, RED)
-        draw_body(screen, body2, BLUE)
+        
+        for body in bodys:
+            draw_body(screen, body)
 
-        # Update the display
-        pygame.display.flip()
+        draw_input_box()
 
-        # Delay to control the speed of the simulation
-        #pygame.time.delay(10)
-
-        # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    active = not active
+                else:
+                    active = False
+                color = color_active if active else color_inactive
+
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        print(text)
+                        try:
+                            simSpeed = float(text)
+                        except ValueError:
+                            print("Invalid input. Please enter a number.")
+                        text = ''
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
+
+
+
+        # Update the display
+        pygame.display.flip()
     
         
         #Calculate the new position and velocity of the bodies
@@ -197,6 +244,11 @@ def main():
         acceleration = calculate_acceleration(body2, gravity, direction)
         body2.vel = calculate_new_velocity(body2, simSpeed, acceleration)
         body2.pos = calculate_new_position(body2, simSpeed)
+
+        
+
+        
+
         """
         print("Iteration " + str(i))
         print(body1.name + " Pos = " + str(body1.pos) + " Vel = " + str(body1.vel))
