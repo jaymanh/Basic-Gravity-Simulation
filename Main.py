@@ -20,7 +20,7 @@ def apply_gravity(mass1: float, mass2: float, distance: float) -> float:
     if mass1 <= 0 or mass2 <= 0 or distance < 0:
         raise ValueError("Invalid input")
     
-    return (6.674 * (10 ** -11)) * ((mass1 * mass2) / (distance ** 2))
+    return (6.674 * (10 ** -11)) * ((mass1 * mass2) / (distance ** 2)) #Calculate the force of gravity between two masses
 
 #Calculate the distance between two points
 def calculate_distance(point1: list[float], point2: list[float]) -> float:
@@ -38,9 +38,9 @@ def calculate_distance(point1: list[float], point2: list[float]) -> float:
         raise ValueError("Invalid input")
     
     distance = 0
-    for i in range(len(point1)):
-        distance += (point1[i] - point2[i]) ** 2
-    return math.sqrt(distance)
+    for i in range(len(point1)): #For each dimension
+        distance += (point1[i] - point2[i]) ** 2 #Calculate the distance between two points
+    return math.sqrt(distance)  #Return the distance between two points
 
 #Calculate the new position of a body
 def calculate_new_position(body: Bodies.body, time: float) -> list[float]:
@@ -58,9 +58,9 @@ def calculate_new_position(body: Bodies.body, time: float) -> list[float]:
         raise ValueError("Invalid input")
     
     new_position = []
-    for i in range(len(body.pos)):
-        new_position.append(body.pos[i] + (body.vel[i] * time))
-    return new_position
+    for i in range(len(body.pos)): #For each dimension
+        new_position.append(body.pos[i] + (body.vel[i] * time)) #Calculate the new position of a body
+    return new_position #Return the new position of a body
 
 #Calculate the new velocity of a body
 def calculate_new_velocity(body: Bodies.body, time: float, acceleration: list[float]) -> list[float]:
@@ -71,9 +71,6 @@ def calculate_new_velocity(body: Bodies.body, time: float, acceleration: list[fl
         body (Bodies.body): The body to calculate the new velocity of.
         time (float): The time to calculate the new velocity for.
     """
-    #print(type(body), isinstance(body, Bodies.body))
-    #print(type(time), isinstance(time, float))
-    #print(type(acceleration), isinstance(acceleration, list))
     if not isinstance(body, Bodies.body) or not isinstance(time, float) or not isinstance(acceleration, list):
         raise ValueError("Invalid input")
     
@@ -81,10 +78,10 @@ def calculate_new_velocity(body: Bodies.body, time: float, acceleration: list[fl
         raise ValueError("Invalid input")
     
     new_velocity = []
-    new_velocity.append(body.vel[0] + (acceleration[0] * time))
-    new_velocity.append(body.vel[1] + (acceleration[1] * time))
-    new_velocity.append(body.vel[2] + (acceleration[2] * time))
-    return new_velocity
+    #Calculate the new velocity of a body
+    for i in range(len(body.vel)):
+        new_velocity.append(body.vel[i] + (acceleration[i] * time)) #Calculate the new velocity of a body
+    return new_velocity #Return the new velocity of a body
 
 #Caluclate the acceleration of a body with direction
 def calculate_acceleration(body: Bodies.body, change: float, direction: list[float]) -> list[float]:
@@ -103,10 +100,10 @@ def calculate_acceleration(body: Bodies.body, change: float, direction: list[flo
         raise ValueError("Invalid input")
     
     acceleration = []
-    acceleration.append((direction[0] * change) / body.mas)
-    acceleration.append((direction[1] * change) / body.mas)
-    acceleration.append((direction[2] * change) / body.mas)
-    return acceleration
+    for i in range(len(direction)):
+        acceleration.append((direction[i] * change) / body.mas) #Calculate the acceleration of a body
+    return acceleration #Return the acceleration of a body
+
 #Calculate the direction of a change in velocity
 def calculate_direction(body1: Bodies.body, body2: Bodies.body) -> list[float]:
     """
@@ -120,17 +117,16 @@ def calculate_direction(body1: Bodies.body, body2: Bodies.body) -> list[float]:
         raise ValueError("Invalid input")
     
     direction = []
-    direction.append(body2.pos[0] - body1.pos[0])
-    direction.append(body2.pos[1] - body1.pos[1])
-    direction.append(body2.pos[2] - body1.pos[2])
+    for i in range(len(body1.pos)):
+        direction.append(body2.pos[i] - body1.pos[i]) #Calculate the direction of a change in velocity
     NormalizedDirection = []
     #Make it so that the direction has a magnitude of 1
     for i in range(len(direction)):
-        NormalizedDirection.append(direction[i] / calculate_distance(body1.pos, body2.pos))
-    return NormalizedDirection
+        NormalizedDirection.append(direction[i] / calculate_distance(body1.pos, body2.pos)) #Calculate the direction of a change in velocity
+    return NormalizedDirection #Return the direction of a change in velocity
 
 def draw_body(screen, body, color):
-    pygame.draw.circle(screen, color, (int((body.pos[0] / 400000) + 960), int((body.pos[1] / 400000) + 960)), BODY_RADIUS)
+    pygame.draw.circle(screen, color, (int((body.pos[0] / 400000) + 960), int((body.pos[1] / 400000) + 960)), BODY_RADIUS) 
 
 pygame.init()
 
@@ -145,12 +141,12 @@ def main():
     
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -12.3, 0])
-    body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 1000, 0])
+    body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -12.3, 0]) 
+    body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 1000, 0]) 
     
-    print(body1.name + " Mas = " + str(body1.mas) + " Pos = " + str(body1.pos) + " Vel = " + str(body1.vel))
+    print(body1.name + " Mas = " + str(body1.mas) + " Pos = " + str(body1.pos) + " Vel = " + str(body1.vel)) 
     print(body2.name + " Mas = " + str(body2.mas) + " Pos = " + str(body2.pos) + " Vel = " + str(body2.vel))
-    simSpeed = 1000.0
+    simSpeed = 1.0
     
     i = 0
     while True:
@@ -174,24 +170,28 @@ def main():
                 pygame.quit()
                 sys.exit()
     
+        
+        #Calculate the new position and velocity of the bodies
         gravity = apply_gravity(body1.mas, body2.mas, calculate_distance(body1.pos, body2.pos))
 
+        #Calculate the new position and velocity of body1
         direction = calculate_direction(body1, body2)
         acceleration = calculate_acceleration(body1, gravity, direction)
-
         body1.vel = calculate_new_velocity(body1, simSpeed, acceleration)
         body1.pos = calculate_new_position(body1, simSpeed)
 
+        #Calculate the new position and velocity of body2
         direction = calculate_direction(body2, body1)
         acceleration = calculate_acceleration(body2, gravity, direction)
         body2.vel = calculate_new_velocity(body2, simSpeed, acceleration)
         body2.pos = calculate_new_position(body2, simSpeed)
-        """        
+        """
         print("Iteration " + str(i))
         print(body1.name + " Pos = " + str(body1.pos) + " Vel = " + str(body1.vel))
         print(body2.name + " Pos = " + str(body2.pos) + " Vel = " + str(body2.vel))
         print("")
         """
+        
     
     
 
