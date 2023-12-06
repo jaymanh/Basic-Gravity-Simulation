@@ -2,7 +2,7 @@ import math
 import sys
 import Bodies
 import pygame
-
+import os
 
 #Gravity simulation
 def apply_gravity(mass1: float, mass2: float, distance: float) -> float:
@@ -128,6 +128,7 @@ def calculate_direction(body1: Bodies.body, body2: Bodies.body) -> list[float]:
 def draw_body(screen, body, color):
     pygame.draw.circle(screen, color, (int((body.pos[0] / 400000) + 960), int((body.pos[1] / 400000) + 960)), BODY_RADIUS) 
 
+os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0" #Make the window open in the top left corner of the screen
 pygame.init()
 
 WIDTH, HEIGHT = 1920, 1920
