@@ -183,7 +183,7 @@ def main():
     
     print(body1.name + " Mas = " + str(body1.mas) + " Pos = " + str(body1.pos) + " Vel = " + str(body1.vel)) 
     print(body2.name + " Mas = " + str(body2.mas) + " Pos = " + str(body2.pos) + " Vel = " + str(body2.vel))
-    simSpeed = 5000.0
+    simSpeed = 1000.0
     
     i = 0
     while True:
