@@ -207,7 +207,7 @@ def main():
 
     body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], RED, 400) 
     body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000], BLUE, 100) 
-    body3 = Bodies.body("MoonMoon", 7.348 * (10 ** 20), [3.4 * (10 ** 8), 0, 0], [0, -300, 1200], BLUE, 50)
+    body3 = Bodies.body("MoonMoon", 7.348 * (10 ** 20), [3.4 * (10 ** 8), 0, 0], [0, 300, 1200], BLUE, 50)
     body4 = Bodies.body("Sun", 1.989 * (10 ** 30), [0, 2 * (10 ** 10), 0], [0, 0, 0], WHITE, 1000)
 
     bodys = [body1, body2, body3]
