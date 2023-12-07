@@ -1,11 +1,12 @@
 class body:
 
-    def __init__(self, name, mas, pos, vel, color):
+    def __init__(self, name, mas, pos, vel, color, radius):
         self.name = name
         self.mas = mas
         self.pos = pos
         self.vel = vel
         self.color = color
+        self.radius = radius
 
     def name(self):
         return self.name
@@ -22,4 +23,6 @@ class body:
     def color(self):
         return self.color
     
+    def radius(self):
+        return self.radius
 

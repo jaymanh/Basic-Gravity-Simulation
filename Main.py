@@ -134,7 +134,7 @@ def draw_body(screen, body):
 
     # Calculate the size of the circle based on the z-axis
     circle_radius = int(scaled_z / 30)  # Adjust the divisor to get the desired effect
-
+    circle_radius = circle_radius + (BODY_RADIUS / 4) -3
     # Draw a sphere with the calculated radius
     pygame.draw.circle(screen, body.color, (scaled_x, scaled_y), circle_radius)
     pygame.draw.circle(screen, (0, 0, 0), (scaled_x, scaled_y), circle_radius, 1)  # Outline
@@ -176,8 +176,8 @@ def main():
     global active
     global text
 
-    body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], BLUE) 
-    body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000], RED) 
+    body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], RED, 1000) 
+    body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000], BLUE, 100) 
 
     bodys = [body1, body2]
     
