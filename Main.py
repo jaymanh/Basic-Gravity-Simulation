@@ -134,7 +134,7 @@ def draw_body(screen, body):
 
     # Calculate the size of the circle based on the z-axis
     circle_radius = int(scaled_z / 30)  # Adjust the divisor to get the desired effect
-    circle_radius = circle_radius + (BODY_RADIUS / 4) -3
+    circle_radius = circle_radius + (body.radius / 4) -20
     # Draw a sphere with the calculated radius
     pygame.draw.circle(screen, body.color, (scaled_x, scaled_y), circle_radius)
     pygame.draw.circle(screen, (0, 0, 0), (scaled_x, scaled_y), circle_radius, 1)  # Outline
@@ -167,7 +167,7 @@ color_inactive = pygame.Color('lightskyblue3')
 color_active = pygame.Color('dodgerblue2')
 color = color_inactive
 active = False
-text = ''
+text = 'Simulation Speed'
 font = pygame.font.Font(None, 32)
 
 
@@ -176,7 +176,7 @@ def main():
     global active
     global text
 
-    body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], RED, 1000) 
+    body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], RED, 400) 
     body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000], BLUE, 100) 
 
     bodys = [body1, body2]
@@ -206,6 +206,7 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if input_box.collidepoint(event.pos):
                     active = not active
+                    text = ''
                 else:
                     active = False
                 color = color_active if active else color_inactive
