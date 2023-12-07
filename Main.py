@@ -22,6 +22,34 @@ def apply_gravity(mass1: float, mass2: float, distance: float) -> float:
     
     return (6.674 * (10 ** -11)) * ((mass1 * mass2) / (distance ** 2)) #Calculate the force of gravity between two masses
 
+#New gravity simulation
+#Calculate the total gravity on one with direction body accounting for all bodies 
+def calculate_gravity_with_direction(body: Bodies.body, bodys: list[Bodies.body]) -> list[float]:
+    """
+    Returns the acceleration of a body after a given change in velocity.
+    
+    Args:
+        body (Bodies.body): The body to calculate the acceleration of.
+        bodys (list[Bodies.body]): The list of bodies to calculate the acceleration for.
+        simSpeed (float): The simulation speed.
+    """
+    if not isinstance(body, Bodies.body) or not isinstance(bodys, list):
+        raise ValueError("Invalid input")
+    
+    
+    acceleration = [0, 0, 0]
+    accelerationTemp = [0, 0, 0]
+    for i in range(len(bodys)):
+        if bodys[i] != body:
+            gravity = apply_gravity(body.mas, bodys[i].mas, calculate_distance(body.pos, bodys[i].pos)) 
+            direction = calculate_direction(body, bodys[i])
+            accelerationTemp = calculate_acceleration(body, gravity, direction)
+
+        for j in range(len(acceleration)):
+            acceleration[j] += accelerationTemp[j]
+
+    return acceleration #Return the acceleration of a body
+
 #Calculate the distance between two points
 def calculate_distance(point1: list[float], point2: list[float]) -> float:
     """
@@ -176,14 +204,17 @@ def main():
     global active
     global text
 
+
     body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], RED, 400) 
     body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000], BLUE, 100) 
+    body3 = Bodies.body("MoonMoon", 7.348 * (10 ** 20), [3.4 * (10 ** 8), 0, 0], [0, -300, 1200], BLUE, 50)
+    body4 = Bodies.body("Sun", 1.989 * (10 ** 30), [0, 2 * (10 ** 10), 0], [0, 0, 0], WHITE, 1000)
 
-    bodys = [body1, body2]
+    bodys = [body1, body2, body3]
     
     print(body1.name + " Mas = " + str(body1.mas) + " Pos = " + str(body1.pos) + " Vel = " + str(body1.vel)) 
     print(body2.name + " Mas = " + str(body2.mas) + " Pos = " + str(body2.pos) + " Vel = " + str(body2.vel))
-    simSpeed = 1000.0
+    simSpeed = 1.0
     
     i = 0
     while True:
@@ -232,6 +263,13 @@ def main():
     
         
         #Calculate the new position and velocity of the bodies
+        for body in bodys:
+             acceleration = calculate_gravity_with_direction(body, bodys)
+             body.vel = calculate_new_velocity(body, simSpeed, acceleration)
+             body.pos = calculate_new_position(body, simSpeed)
+
+        
+        """
         gravity = apply_gravity(body1.mas, body2.mas, calculate_distance(body1.pos, body2.pos))
 
         #Calculate the new position and velocity of body1
@@ -245,24 +283,8 @@ def main():
         acceleration = calculate_acceleration(body2, gravity, direction)
         body2.vel = calculate_new_velocity(body2, simSpeed, acceleration)
         body2.pos = calculate_new_position(body2, simSpeed)
-
-        
-
-        
-
         """
-        print("Iteration " + str(i))
-        print(body1.name + " Pos = " + str(body1.pos) + " Vel = " + str(body1.vel))
-        print(body2.name + " Pos = " + str(body2.pos) + " Vel = " + str(body2.vel))
-        print("")
-        """
-        
-    
-    
-
-
-
-    
+  
 
     
 
