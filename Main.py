@@ -3,6 +3,7 @@ import sys
 import Bodies
 import pygame
 import os
+import random
 
 #Gravity simulation
 def apply_gravity(mass1: float, mass2: float, distance: float) -> float:
@@ -15,6 +16,7 @@ def apply_gravity(mass1: float, mass2: float, distance: float) -> float:
         distance (float): The distance between the two masses.
     """
     if not isinstance(mass1, float) or not isinstance(mass2, float) or not isinstance(distance, float):
+        print(mass1, mass2, distance)
         raise ValueError("Invalid input")
     
     if mass1 <= 0 or mass2 <= 0 or distance < 0:
@@ -198,6 +200,13 @@ active = False
 text = 'Simulation Speed'
 font = pygame.font.Font(None, 32)
 
+button_color = (50, 200, 50)  # RGB color
+button_position = (500, 100)  # x, y
+button_size = (250, 50)  # width, height
+button_text = 'Spawn Random Body'
+
+text_surface = font.render(button_text, True, (255, 255, 255))
+
 
 def main():
 
@@ -214,7 +223,11 @@ def main():
     
     for body in bodys:
         print(body.name + " Mas = " + str(body.mas) + " Pos = " + str(body.pos) + " Vel = " + str(body.vel))
-    simSpeed = 1.0
+
+
+
+    # Set the simulation speed
+    simSpeed = 100.0
     
     i = 0
     while True:
@@ -228,6 +241,10 @@ def main():
             draw_body(screen, body)
 
         draw_input_box()
+        pygame.draw.rect(screen, button_color, (*button_position, *button_size))
+        # Draw the text onto the button
+        screen.blit(text_surface, (button_position[0] + 10, button_position[1] + 10))
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -238,6 +255,15 @@ def main():
                 if input_box.collidepoint(event.pos):
                     active = not active
                     text = ''
+                elif pygame.Rect(button_position, button_size).collidepoint(event.pos):
+                    """spawn random body"""
+                    mas = float(random.randint(1, 10) * (10 ** 24))
+                    pos = [float(random.randint(-500000000, 500000000)), float(random.randint(-500000000, 500000000)), float(random.randint(-500000000, 500000000))]
+                    vel = [float(random.randint(-1000, 1000)), float(random.randint(-1000, 1000)), float(random.randint(-1000, 1000))]
+                    color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    bodys.append(Bodies.body("Body" + str(i), mas, pos, vel, color, 100))
+                    print("Body" + str(i) + " Mas = " + str(mas) + " Pos = " + str(pos) + " Vel = " + str(vel))
+                    i += 1
                 else:
                     active = False
                 color = color_active if active else color_inactive
