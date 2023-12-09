@@ -179,6 +179,41 @@ def draw_input_box():
     screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
     pygame.draw.rect(screen, color, input_box, 2)
 
+#Check if bodies are colliding
+def check_collision(body1: Bodies.body, body2: Bodies.body) -> bool:
+    """
+    Returns whether two bodies are colliding.
+    
+    Args:
+        body1 (Bodies.body): The first body.
+        body2 (Bodies.body): The second body.
+    """
+    if not isinstance(body1, Bodies.body) or not isinstance(body2, Bodies.body):
+        raise ValueError("Invalid input")
+    
+    if calculate_distance(body1.pos, body2.pos) <= ((body1.radius * (10 ** 5)) + (body2.radius * (10 ** 5))):
+        return True #Return whether two bodies are colliding
+    else:
+        return False #Return whether two bodies are colliding
+    
+
+#Calculate the new velocity of a body accounting for the mass of the other body when they collide
+def calculate_new_velocity_collision(body1: Bodies.body, body2: Bodies.body) -> list[float]:
+    """
+    Returns the new velocity of a body after they collide.
+    
+    Args:
+        body (Bodies.body): The body to calculate the new velocity of.
+    """
+    if not isinstance(body1, Bodies.body) or not isinstance(body2, Bodies.body):
+        raise ValueError("Invalid input")
+    new_velocity = []
+    for i in range(len(body1.vel)):
+        new_velocity.append((body1.mas * body1.vel[i] + body2.mas * body2.vel[i]) / (body1.mas + body2.mas))
+    return new_velocity #Return the new velocity of a body
+    
+
+
 os.environ["SDL_VIDEO_WINDOW_POS"] = "1921,-800" #Make the window open where needed
 pygame.init()
 pygame.font.init()
@@ -261,8 +296,9 @@ def main():
                     pos = [float(random.randint(-500000000, 500000000)), float(random.randint(-500000000, 500000000)), float(random.randint(-500000000, 500000000))]
                     vel = [float(random.randint(-1000, 1000)), float(random.randint(-1000, 1000)), float(random.randint(-1000, 1000))]
                     color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    bodys.append(Bodies.body("Body" + str(i), mas, pos, vel, color, 100))
-                    print("Body" + str(i) + " Mas = " + str(mas) + " Pos = " + str(pos) + " Vel = " + str(vel))
+                    radius = (mas / 10 ** 24) * random.randint(1, 10)
+                    bodys.append(Bodies.body("Body" + str(i), mas, pos, vel, color, radius))
+                    print("Body" + str(i) + " Mas = " + str(mas) + " Pos = " + str(pos) + " Vel = " + str(vel) + " Color = " + str(color) + " Radius = " + str(radius))
                     i += 1
                 else:
                     active = False
@@ -293,6 +329,26 @@ def main():
              acceleration = calculate_gravity_with_direction(body, bodys)
              body.vel = calculate_new_velocity(body, simSpeed, acceleration)
              body.pos = calculate_new_position(body, simSpeed)
+        
+        for body in bodys:
+            for body2 in bodys:
+                if body != body2:
+                    if check_collision(body, body2):
+                        print("Collision")
+
+                        if body.mas >= body2.mas:
+                            body.mas += body2.mas                            
+                            body.vel = calculate_new_velocity_collision(body, body2)
+                            body.radius += body2.radius
+                            bodys.remove(body2)
+                            print("Body was removed")
+                        else:
+                            body2.mas =+ body.mas
+                            body2.vel = calculate_new_velocity_collision(body2, body)
+                            body2.radius += body.radius
+                            bodys.remove(body)
+                            print("Body2 was removed")
+                        break
 
         
         """
