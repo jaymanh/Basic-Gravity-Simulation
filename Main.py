@@ -70,7 +70,10 @@ def calculate_distance(point1: list[float], point2: list[float]) -> float:
     distance = 0
     for i in range(len(point1)): #For each dimension
         distance += (point1[i] - point2[i]) ** 2 #Calculate the distance between two points
-    return math.sqrt(distance)  #Return the distance between two points
+    distance = math.sqrt(distance)
+    if distance == 0:
+        distance = 1.0
+    return  distance #Return the distance between two points
 
 #Calculate the new position of a body
 def calculate_new_position(body: Bodies.body, time: float) -> list[float]:
@@ -158,16 +161,29 @@ def calculate_direction(body1: Bodies.body, body2: Bodies.body) -> list[float]:
 #Draw a body
 def draw_body(screen, body):
     # Scale the 3D coordinates for rendering
-    scaled_x = int((body.pos[0] / 400000) + WIDTH / 2)
-    scaled_y = int((body.pos[1] / 400000) + HEIGHT / 2)
-    scaled_z = int((body.pos[2] / 400000) + WIDTH / 2)
+    #print("Zoom: ",zoom)
+    center_x = WIDTH/2
+    center_y = HEIGHT/2
+
+    scaled_x = int((body.pos[0] / (4000000 * zoom)+ center_x) + (cam_pos[0]))
+    scaled_y = int((body.pos[1] / (4000000 * zoom)+ center_y) + (cam_pos[1]))
+    scaled_z = int(((body.pos[2] / 400000)) + WIDTH / 2)
 
     # Calculate the size of the circle based on the z-axis
     circle_radius = int(scaled_z / 30)  # Adjust the divisor to get the desired effect
-    circle_radius = circle_radius + (body.radius / 4) -20
+    circle_radius = (circle_radius + (body.radius / 4) + (zoom * 10)) -20
+
+    #print(body.name," x: ", scaled_x)
+    #print(body.name, " y: ", scaled_y)
+
+    # Adjust for the center of zoom
+
+    if circle_radius < 2:
+        circle_radius = 2
     # Draw a sphere with the calculated radius
-    pygame.draw.circle(screen, body.color, (scaled_x, scaled_y), circle_radius)
-    pygame.draw.circle(screen, (0, 0, 0), (scaled_x, scaled_y), circle_radius, 1)  # Outline
+    if scaled_x >= 0 and scaled_y >= 0:
+        pygame.draw.circle(screen, body.color, (scaled_x, scaled_y), circle_radius)
+        pygame.draw.circle(screen, (0, 0, 0), (scaled_x, scaled_y), circle_radius, 1)  # Outline
 
 
 def draw_input_box():
@@ -214,16 +230,18 @@ def calculate_new_velocity_collision(body1: Bodies.body, body2: Bodies.body) -> 
     
 
 
-os.environ["SDL_VIDEO_WINDOW_POS"] = "1921,-800" #Make the window open where needed
+os.environ["SDL_VIDEO_WINDOW_POS"] = "1921,0" #Make the window open where needed
 pygame.init()
 pygame.font.init()
 
-WIDTH, HEIGHT = 1920, 1920
+WIDTH, HEIGHT = 1920, 1080
 BODY_RADIUS = 20
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)
+ORANGE = (255, 165, 0)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # Input box
@@ -242,19 +260,34 @@ button_text = 'Spawn Random Body'
 
 text_surface = font.render(button_text, True, (255, 255, 255))
 
+zoom = float(-1170)
+cam_pos = [0,0]
 
 def main():
 
     global active
     global text
+    global zoom
 
 
-    body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], RED, 400) 
-    body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000], BLUE, 100) 
-    body3 = Bodies.body("MoonMoon", 7.348 * (10 ** 20), [-3.4 * (10 ** 8), 0, 0], [0, -800, 500], BLUE, 50)
-    body4 = Bodies.body("Sun", 1.989 * (10 ** 30), [0, 2 * (10 ** 10), 0], [0, 0, 0], WHITE, 1000)
+    #body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], RED, 400) 
+    #body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000], BLUE, 100) 
+    #body3 = Bodies.body("MoonMoon", 7.348 * (10 ** 20), [-3.4 * (10 ** 8), 0, 0], [0, -800, 500], BLUE, 50)
+    #body4 = Bodies.body("Sun", 1.989 * (10 ** 30), [0, 2 * (10 ** 10), 0], [0, 0, 0], WHITE, 1000)
+    body1 = Bodies.body("Sun", 1.989 * (10 ** 30), [0, 0, 0], [0, 0, 0], WHITE, 1000)
+    body2 = Bodies.body("Earth", 5.972 * (10 ** 24), [1.496 * (10 ** 11), 0, 0], [0, 29780, 0], GREEN, 400)
+    body3 = Bodies.body("Moon", 7.348 * (10 ** 22), [1.496 * (10 ** 11) + 3.844 * (10 ** 8), 0, 0], [0, 29780 + 1022, 0], BLUE, 100)
+    body4 = Bodies.body("Mars", 6.39 * (10 ** 23), [2.279 * (10 ** 11), 0, 0], [0, 24130, 0], RED, 400)
+    body5 = Bodies.body("Jupiter", 1.898 * (10 ** 27), [7.785 * (10 ** 11), 0, 0], [0, 13070, 0], ORANGE, 400)
+    body6 = Bodies.body("Saturn", 5.683 * (10 ** 26), [1.433 * (10 ** 12), 0, 0], [0, 9690, 0], (255, 255, 0), 400)
+    body7 = Bodies.body("Uranus", 8.681 * (10 ** 25), [2.872 * (10 ** 12), 0, 0], [0, 6810, 0], (0, 255, 255), 400)
+    body8 = Bodies.body("Neptune", 1.024 * (10 ** 26), [4.495 * (10 ** 12), 0, 0], [0, 5430, 0], (0, 0, 255), 400)
+    body9 = Bodies.body("Pluto", 1.309 * (10 ** 22), [5.906 * (10 ** 12), 0, 0], [0, 4740, 0], (255, 0, 255), 400)
+    body10 = Bodies.body("Venus", 4.867 * (10 ** 24), [1.082 * (10 ** 11), 0, 0], [0, 35020, 0], (255, 0, 0), 400)
+    body11 = Bodies.body("Mercury", 3.285 * (10 ** 23), [5.791 * (10 ** 10), 0, 0], [0, 47360, 0], (255, 255, 255), 400)
 
-    bodys = [body1, body2, body3]
+
+    bodys = [body1, body2, body3, body4, body5, body6, body7, body8, body10, body11]
     
     for body in bodys:
         print(body.name + " Mas = " + str(body.mas) + " Pos = " + str(body.pos) + " Vel = " + str(body.vel))
@@ -262,7 +295,7 @@ def main():
 
 
     # Set the simulation speed
-    simSpeed = 100.0
+    simSpeed = 1.0
     
     i = 0
     while True:
@@ -317,6 +350,28 @@ def main():
                         text = text[:-1]
                     else:
                         text += event.unicode
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 4:  # Mouse wheel scrolled up
+                    zoom += 10
+                    if abs(zoom) < 1e-15:  # You can adjust the threshold as needed
+                        zoom = 0.1
+                elif event.button == 5:  # Mouse wheel scrolled down
+                    zoom -= 10
+                    if abs(zoom) < 1e-15:  # You can adjust the threshold as needed
+                        zoom = -0.1
+
+                print(zoom)
+            keys = pygame.key.get_pressed()
+
+            # Update camera position based on key state
+            if keys[pygame.K_UP]:
+                cam_pos[1] += 10
+            if keys[pygame.K_DOWN]:
+                cam_pos[1] -= 10
+            if keys[pygame.K_LEFT]:
+                cam_pos[0] += 10
+            if keys[pygame.K_RIGHT]:
+                cam_pos[0] -= 10
 
 
 
