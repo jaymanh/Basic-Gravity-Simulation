@@ -349,7 +349,7 @@ def main():
                     """spawn random body"""
                     mas = float(random.randint(1, 10) * (10 ** random.randint(10, 30)))
                     pos = [float(random.randint(-6 * (10 * 2), 6 * (10 * 2))), float(random.randint(-6 * (10 * 2), 6 * (10 * 2))), float(random.randint(-6 * (10 * 2), 6 * (10 * 2)))]
-                    pos = [pos[0] * (10 ** random.randint(4,10)), pos[1] * (10 ** random.randint(4,10)), pos[2] * (10 ** random.randint(4,10))]
+                    pos = [pos[0] * (10 ** random.randint(9,12)), pos[1] * (10 ** random.randint(9,12)), pos[2] * (10 ** random.randint(9,12))]
                     vel = [float(random.randint(-50000, 50000)), float(random.randint(-50000, 50000)), float(random.randint(-50000, 50000))]
                     color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                     radius = random.randint(1, 1000)
