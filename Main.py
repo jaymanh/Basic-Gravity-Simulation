@@ -159,14 +159,14 @@ def calculate_direction(body1: Bodies.body, body2: Bodies.body) -> list[float]:
     return NormalizedDirection #Return the direction of a change in velocity
 
 #Draw a body
-def draw_body(screen, body):
+def draw_body(screen, body, cam_position):
     # Scale the 3D coordinates for rendering
     #print("Zoom: ",zoom)
     center_x = WIDTH/2
     center_y = HEIGHT/2
 
-    scaled_x = int((body.pos[0] / (4000000 * zoom)+ center_x) + (cam_pos[0]))
-    scaled_y = int((body.pos[1] / (4000000 * zoom)+ center_y) + (cam_pos[1]))
+    scaled_x = int((body.pos[0] / (4000000 * zoom)+ center_x) + (cam_position[0]))
+    scaled_y = int((body.pos[1] / (4000000 * zoom)+ center_y) + (cam_position[1]))
     scaled_z = int(((body.pos[2] / 400000)) + WIDTH / 2)
 
     # Calculate the size of the circle based on the z-axis
@@ -228,9 +228,26 @@ def calculate_new_velocity_collision(body1: Bodies.body, body2: Bodies.body) -> 
         new_velocity.append((body1.mas * body1.vel[i] + body2.mas * body2.vel[i]) / (body1.mas + body2.mas))
     return new_velocity #Return the new velocity of a body
     
+#calculate the position of the camera based on the zoom scale
+def calculate_camera_position(zoom: float, cameraoffset: [float]) -> list[float]:
+    """
+    Returns the position of the camera based on the zoom scale.
+    
+    Args:
+        zoom (float): The zoom scale.
+    """
+    if not isinstance(zoom, float) or not isinstance(cameraoffset, list):
+        raise ValueError("Invalid input")
+    
+    
+    camera_position = []
+    camera_position.append(cameraoffset[0] * 4000000 / zoom)
+    camera_position.append(cameraoffset[1] * 4000000 / zoom)
+    
+    return camera_position #Return the position of the camera based on the zoom scale
 
 
-os.environ["SDL_VIDEO_WINDOW_POS"] = "1921,0" #Make the window open where needed
+os.environ["SDL_VIDEO_WINDOW_POS"] = "2000,-200" #Make the window open where needed
 pygame.init()
 pygame.font.init()
 
@@ -242,6 +259,7 @@ BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 ORANGE = (255, 165, 0)
+PURPLE = (128, 0, 128)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # Input box
@@ -287,7 +305,7 @@ def main():
     body11 = Bodies.body("Mercury", 3.285 * (10 ** 23), [5.791 * (10 ** 10), 0, 0], [0, 47360, 0], (255, 255, 255), 400)
 
 
-    bodys = [body1, body2, body3, body4, body5, body6, body7, body8, body10, body11]
+    bodys = [body1, body2, body3, body4, body5, body6, body7, body8, body9, body10, body11]
     
     for body in bodys:
         print(body.name + " Mas = " + str(body.mas) + " Pos = " + str(body.pos) + " Vel = " + str(body.vel))
@@ -295,7 +313,7 @@ def main():
 
 
     # Set the simulation speed
-    simSpeed = 1.0
+    simSpeed = 100.0
     
     i = 0
     while True:
@@ -304,15 +322,17 @@ def main():
         screen.fill((0, 0, 0))
 
         # Draw the bodies
-        
+        cameraposition = calculate_camera_position(zoom, cam_pos)
+        #print(cameraposition)
         for body in bodys:
-            draw_body(screen, body)
+            draw_body(screen, body, cameraposition)
 
         draw_input_box()
         pygame.draw.rect(screen, button_color, (*button_position, *button_size))
         # Draw the text onto the button
         screen.blit(text_surface, (button_position[0] + 10, button_position[1] + 10))
 
+        #pygame.draw.circle(screen, PURPLE, (int(WIDTH / 2), int(HEIGHT / 2)), 1)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -352,27 +372,44 @@ def main():
                         text += event.unicode
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 4:  # Mouse wheel scrolled up
-                    zoom += 10
+                    if zoom < -20:
+                        zoom += 10
+                    else:
+                        zoom += 0.1
                     if abs(zoom) < 1e-15:  # You can adjust the threshold as needed
                         zoom = 0.1
                 elif event.button == 5:  # Mouse wheel scrolled down
-                    zoom -= 10
+                    if zoom < -20:
+                        zoom -= 10
+                    else:
+                        zoom -= 0.1
                     if abs(zoom) < 1e-15:  # You can adjust the threshold as needed
                         zoom = -0.1
 
-                print(zoom)
-            keys = pygame.key.get_pressed()
+                #print(zoom)
+        keys = pygame.key.get_pressed()
 
-            # Update camera position based on key state
-            if keys[pygame.K_UP]:
-                cam_pos[1] += 10
-            if keys[pygame.K_DOWN]:
-                cam_pos[1] -= 10
-            if keys[pygame.K_LEFT]:
-                cam_pos[0] += 10
-            if keys[pygame.K_RIGHT]:
-                cam_pos[0] -= 10
-
+        # Update camera position based on key state
+        if keys[pygame.K_UP]:
+            if zoom > -20:
+                cam_pos[1] -= 0.000001
+            else:
+                cam_pos[1] -= 0.0001
+        if keys[pygame.K_DOWN]:
+            if zoom > -20:
+                cam_pos[1] += 0.000001
+            else:
+                cam_pos[1] += 0.0001
+        if keys[pygame.K_LEFT]:
+            if zoom > -20:
+                cam_pos[0] -= 0.000001
+            else:    
+                cam_pos[0] -= 0.0001
+        if keys[pygame.K_RIGHT]:
+            if zoom > -20:
+                cam_pos[0] += 0.000001
+            else:
+                cam_pos[0] += 0.0001
 
 
         # Update the display
@@ -404,26 +441,6 @@ def main():
                             bodys.remove(body)
                             print("Body2 was removed")
                         break
-
-        
-        """
-        gravity = apply_gravity(body1.mas, body2.mas, calculate_distance(body1.pos, body2.pos))
-
-        #Calculate the new position and velocity of body1
-        direction = calculate_direction(body1, body2)
-        acceleration = calculate_acceleration(body1, gravity, direction)
-        body1.vel = calculate_new_velocity(body1, simSpeed, acceleration)
-        body1.pos = calculate_new_position(body1, simSpeed)
-
-        #Calculate the new position and velocity of body2
-        direction = calculate_direction(body2, body1)
-        acceleration = calculate_acceleration(body2, gravity, direction)
-        body2.vel = calculate_new_velocity(body2, simSpeed, acceleration)
-        body2.pos = calculate_new_position(body2, simSpeed)
-        """
-  
-
-    
 
 
 
