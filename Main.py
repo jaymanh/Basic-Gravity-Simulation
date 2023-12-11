@@ -180,6 +180,8 @@ def draw_body(screen, body, cam_position):
 
     if circle_radius < 2:
         circle_radius = 2
+    elif circle_radius > 100:
+        circle_radius = 100
     # Draw a sphere with the calculated radius
     if scaled_x >= 0 and scaled_y >= 0:
         pygame.draw.circle(screen, body.color, (scaled_x, scaled_y), circle_radius)
@@ -345,11 +347,12 @@ def main():
                     text = ''
                 elif pygame.Rect(button_position, button_size).collidepoint(event.pos):
                     """spawn random body"""
-                    mas = float(random.randint(1, 10) * (10 ** 24))
-                    pos = [float(random.randint(-500000000, 500000000)), float(random.randint(-500000000, 500000000)), float(random.randint(-500000000, 500000000))]
-                    vel = [float(random.randint(-1000, 1000)), float(random.randint(-1000, 1000)), float(random.randint(-1000, 1000))]
+                    mas = float(random.randint(1, 10) * (10 ** random.randint(10, 30)))
+                    pos = [float(random.randint(-6 * (10 * 2), 6 * (10 * 2))), float(random.randint(-6 * (10 * 2), 6 * (10 * 2))), float(random.randint(-6 * (10 * 2), 6 * (10 * 2)))]
+                    pos = [pos[0] * (10 ** random.randint(4,10)), pos[1] * (10 ** random.randint(4,10)), pos[2] * (10 ** random.randint(4,10))]
+                    vel = [float(random.randint(-50000, 50000)), float(random.randint(-50000, 50000)), float(random.randint(-50000, 50000))]
                     color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    radius = (mas / 10 ** 24) * random.randint(1, 10)
+                    radius = random.randint(1, 1000)
                     bodys.append(Bodies.body("Body" + str(i), mas, pos, vel, color, radius))
                     print("Body" + str(i) + " Mas = " + str(mas) + " Pos = " + str(pos) + " Vel = " + str(vel) + " Color = " + str(color) + " Radius = " + str(radius))
                     i += 1
