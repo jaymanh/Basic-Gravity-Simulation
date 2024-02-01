@@ -4,6 +4,7 @@ import Bodies
 import pygame
 import os
 import random
+import time
 
 #Gravity simulation
 def apply_gravity(mass1: float, mass2: float, distance: float) -> float:
@@ -161,7 +162,6 @@ def calculate_direction(body1: Bodies.body, body2: Bodies.body) -> list[float]:
 #Draw a body
 def draw_body(screen, body, cam_position):
     # Scale the 3D coordinates for rendering
-    #print("Zoom: ",zoom)
     center_x = WIDTH/2
     center_y = HEIGHT/2
 
@@ -172,9 +172,6 @@ def draw_body(screen, body, cam_position):
     # Calculate the size of the circle based on the z-axis
     circle_radius = int(scaled_z / 30)  # Adjust the divisor to get the desired effect
     circle_radius = (circle_radius + (body.radius / 4) + (zoom * 10)) -20
-
-    #print(body.name," x: ", scaled_x)
-    #print(body.name, " y: ", scaled_y)
 
     # Adjust for the center of zoom
 
@@ -250,6 +247,8 @@ def calculate_camera_position(zoom: float, cameraoffset: [float]) -> list[float]
 
 
 os.environ["SDL_VIDEO_WINDOW_POS"] = "2000,-200" #Make the window open where needed
+os.environ['SDL_VIDEO_CENTERED'] = '0' #Make the window open where needed
+
 pygame.init()
 pygame.font.init()
 
@@ -289,11 +288,6 @@ def main():
     global text
     global zoom
 
-
-    #body1 = Bodies.body("Earth", 5.972 * (10 ** 24), [0, 0, 0], [0, -3.5, -12.4], RED, 400) 
-    #body2 = Bodies.body("Moon", 7.348 * (10 ** 22), [3.844 * (10 ** 8), 0, 0], [0, 300, 1000], BLUE, 100) 
-    #body3 = Bodies.body("MoonMoon", 7.348 * (10 ** 20), [-3.4 * (10 ** 8), 0, 0], [0, -800, 500], BLUE, 50)
-    #body4 = Bodies.body("Sun", 1.989 * (10 ** 30), [0, 2 * (10 ** 10), 0], [0, 0, 0], WHITE, 1000)
     body1 = Bodies.body("Sun", 1.989 * (10 ** 30), [0, 0, 0], [0, 0, 0], WHITE, 1000)
     body2 = Bodies.body("Earth", 5.972 * (10 ** 24), [1.496 * (10 ** 11), 0, 0], [0, 29780, 0], GREEN, 400)
     body3 = Bodies.body("Moon", 7.348 * (10 ** 22), [1.496 * (10 ** 11) + 3.844 * (10 ** 8), 0, 0], [0, 29780 + 1022, 0], BLUE, 100)
@@ -306,26 +300,24 @@ def main():
     body10 = Bodies.body("Venus", 4.867 * (10 ** 24), [1.082 * (10 ** 11), 0, 0], [0, 35020, 0], (255, 0, 0), 400)
     body11 = Bodies.body("Mercury", 3.285 * (10 ** 23), [5.791 * (10 ** 10), 0, 0], [0, 47360, 0], (255, 255, 255), 400)
 
-
     bodys = [body1, body2, body3, body4, body5, body6, body7, body8, body9, body10, body11]
     
     for body in bodys:
         print(body.name + " Mas = " + str(body.mas) + " Pos = " + str(body.pos) + " Vel = " + str(body.vel))
-
-
 
     # Set the simulation speed
     simSpeed = 100.0
     
     i = 0
     while True:
+        start_time = time.time()
         i += 1
         # Clear the screen
         screen.fill((0, 0, 0))
 
         # Draw the bodies
         cameraposition = calculate_camera_position(zoom, cam_pos)
-        #print(cameraposition)
+        
         for body in bodys:
             draw_body(screen, body, cameraposition)
 
@@ -333,8 +325,6 @@ def main():
         pygame.draw.rect(screen, button_color, (*button_position, *button_size))
         # Draw the text onto the button
         screen.blit(text_surface, (button_position[0] + 10, button_position[1] + 10))
-
-        #pygame.draw.circle(screen, PURPLE, (int(WIDTH / 2), int(HEIGHT / 2)), 1)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -389,7 +379,6 @@ def main():
                     if abs(zoom) < 1e-15:  # You can adjust the threshold as needed
                         zoom = -0.1
 
-                #print(zoom)
         keys = pygame.key.get_pressed()
 
         # Update camera position based on key state
@@ -444,6 +433,8 @@ def main():
                             bodys.remove(body)
                             print("Body2 was removed")
                         break
+        
+        print("mspt: ", (time.time() - start_time) * 1000)
 
 
 

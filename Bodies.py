@@ -25,4 +25,3 @@ class body:
     
     def radius(self):
         return self.radius
-
