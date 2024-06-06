@@ -402,7 +402,9 @@ def main():
                 cam_pos[0] += 0.000001
             else:
                 cam_pos[0] += 0.0001
-
+        if keys[pygame.K_ESCAPE]:
+            pygame.quit()
+            sys.exit()
 
         # Update the display
         pygame.display.flip()
